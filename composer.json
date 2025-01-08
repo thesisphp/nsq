@@ -1,0 +1,32 @@
+{
+    "name": "typhoon/nsq",
+    "description": "Asynchronous (fiber based) package for NSQ.",
+    "type": "library",
+    "require": {
+        "php": "^8.1",
+        "amphp/http-client": "^5.2",
+        "amphp/socket": "^2.3",
+        "amphp/amp": "^3.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Typhoon\\Nsq\\": ""
+        }
+    },
+    "authors": [
+        {
+            "name": "kafkiansky",
+            "email": "vadimzanfir@gmail.com"
+        },
+        {
+            "name": "Valentin Udaltsov",
+            "email": "udaltsov.valentin@gmail.com"
+        },
+        {
+            "name": "Typhoon Team",
+            "homepage": "https://github.com/orgs/typhoon-php/people"
+        }
+    ],
+    "minimum-stability": "stable"
+}
