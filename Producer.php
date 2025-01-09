@@ -6,9 +6,9 @@ namespace Typhoon\Nsq;
 
 use Amp\Cancellation;
 use Amp\Future;
+use Amp\Socket;
 use Typhoon\Nsq\Internal\Io\NsqConnection;
 use Typhoon\Nsq\Internal\Protocol;
-use Amp\Socket;
 
 /**
  * @api
@@ -22,44 +22,64 @@ final class Producer
     ) {}
 
     /**
-     * @param non-empty-string $topic
+     * @throws \Throwable
+     */
+    public function ping(): void
+    {
+        $this->connection()->command(Protocol\Command::nop());
+    }
+
+    /**
+     * @param non-empty-string|Topic $topic
      * @param non-empty-string $message
      * @throws \Throwable
      */
-    public function pub(string $topic, string $message, ?Cancellation $cancellation = null): void
+    public function pub(string|Topic $topic, string $message, ?Cancellation $cancellation = null): void
     {
+        if (\is_string($topic)) {
+            $topic = new Topic($topic);
+        }
+
         $this
             ->request(Protocol\Command::pub($topic, $message), $cancellation)
             ->await($cancellation);
     }
 
     /**
-     * @param non-empty-string $topic
+     * @param non-empty-string|Topic $topic
      * @param non-empty-string $message
      * @param non-negative-int $delay
      * @throws \Throwable
      */
     public function dpub(
-        string $topic,
+        string|Topic $topic,
         string $message,
         int $delay,
         ?Cancellation $cancellation = null,
     ): void {
+        if (\is_string($topic)) {
+            $topic = new Topic($topic);
+        }
+
         $this
             ->request(Protocol\Command::dpub($topic, $message, $delay), $cancellation)
             ->await($cancellation);
     }
 
     /**
-     * @param non-empty-string $topic
+     * @param non-empty-string|Topic $topic
      * @param non-empty-list<non-empty-string> $messages
      * @throws \Throwable
      */
     public function mpub(
-        string $topic,
+        string|Topic $topic,
         array $messages,
         ?Cancellation $cancellation = null,
     ): void {
+        if (\is_string($topic)) {
+            $topic = new Topic($topic);
+        }
+
         $this
             ->request(Protocol\Command::mpub($topic, $messages), $cancellation)
             ->await($cancellation);

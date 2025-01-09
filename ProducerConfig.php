@@ -12,7 +12,6 @@ use Composer\InstalledVersions;
 final class ProducerConfig
 {
     private const DEFAULT_CONNECTION_TIMEOUT = 10;
-
     private const DEFAULT_DEFLATE_LEVEL = 6;
 
     public readonly string $clientId;

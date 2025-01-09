@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Typhoon\Nsq\Internal\Protocol;
 
+use Typhoon\Nsq\Channel;
+use Typhoon\Nsq\Topic;
+
 /**
  * @internal
  * @psalm-internal Typhoon\Nsq
@@ -100,48 +103,43 @@ final class Command
     }
 
     /**
-     * @param non-empty-string $topic
      * @param non-empty-string $body
      * @return self<void>
      */
-    public static function pub(string $topic, string $body): self
+    public static function pub(Topic $topic, string $body): self
     {
         /** @var self<void> */
-        return new self(CommandType::Pub, [$topic], $body);
+        return new self(CommandType::Pub, [(string) $topic], $body);
     }
 
     /**
-     * @param non-empty-string $topic
      * @param non-empty-list<non-empty-string> $messages
      * @return self<void>
      */
-    public static function mpub(string $topic, array $messages): self
+    public static function mpub(Topic $topic, array $messages): self
     {
         /** @var self<void> */
-        return new self(CommandType::Mpub, [$topic], $messages);
+        return new self(CommandType::Mpub, [(string) $topic], $messages);
     }
 
     /**
-     * @param non-empty-string $topic
      * @param non-empty-string $body
      * @param non-negative-int $delay
      * @return self<void>
      */
-    public static function dpub(string $topic, string $body, int $delay): self
+    public static function dpub(Topic $topic, string $body, int $delay): self
     {
         /** @var self<void> */
-        return new self(CommandType::DPub, [$topic, (string) $delay], $body);
+        return new self(CommandType::DPub, [(string) $topic, (string) $delay], $body);
     }
 
     /**
-     * @param non-empty-string $topic
-     * @param non-empty-string $channel
      * @return self<void>
      */
-    public static function sub(string $topic, string $channel): self
+    public static function sub(Topic $topic, Channel $channel): self
     {
         /** @var self<void> */
-        return new self(CommandType::Sub, [$topic, $channel]);
+        return new self(CommandType::Sub, [(string) $topic, (string) $channel]);
     }
 
     public function write(WriteBytes $writer): void
@@ -173,8 +171,8 @@ final class Command
     }
 
     /**
-     * @throws \Throwable
      * @return T
+     * @throws \Throwable
      */
     public function parse(Response $response): mixed
     {
