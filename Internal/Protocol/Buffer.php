@@ -10,10 +10,7 @@ use Typhoon\Endian\endian;
  * @internal
  * @psalm-internal Typhoon\Nsq
  */
-final class Buffer implements
-    WriteBytes,
-    ReadBytes,
-    \Countable
+final class Buffer implements \Countable
 {
     private string $buffer = '';
 
@@ -21,6 +18,9 @@ final class Buffer implements
         private readonly endian $endian = endian::network,
     ) {}
 
+    /**
+     * @param non-negative-int $v
+     */
     public function writeUint32(int $v): self
     {
         $this->buffer .= $this->endian->packUint32($v);
@@ -28,6 +28,9 @@ final class Buffer implements
         return $this;
     }
 
+    /**
+     * @param non-empty-string $v
+     */
     public function write(string $v): self
     {
         $this->buffer .= $v;
@@ -35,6 +38,10 @@ final class Buffer implements
         return $this;
     }
 
+    /**
+     * @param non-empty-list<non-empty-string> $values
+     * @param callable(positive-int): void $writeLength
+     */
     public function writeArray(array $values, callable $writeLength): self
     {
         foreach ($values as $value) {
@@ -52,11 +59,18 @@ final class Buffer implements
         return $v;
     }
 
+    /**
+     * @param positive-int $n
+     * @return non-empty-string
+     */
     public function read(int $n): string
     {
         return $this->consume($n);
     }
 
+    /**
+     * @return non-negative-int
+     */
     public function readUint16(): int
     {
         return $this->endian->unpackUint16($this->consume(2));
@@ -67,6 +81,9 @@ final class Buffer implements
         return $this->endian->unpackInt32($this->consume(4));
     }
 
+    /**
+     * @return non-negative-int
+     */
     public function readUint64(): int
     {
         return $this->endian->unpackUint64($this->consume(8));

@@ -142,16 +142,16 @@ final class Command
         return new self(CommandType::Sub, [(string) $topic, (string) $channel]);
     }
 
-    public function writeTo(WriteBytes $writer): void
+    public function writeTo(Buffer $buffer): void
     {
-        $writer->write(implode(' ', [$this->type->value, ...$this->args]));
+        $buffer->write(implode(' ', [$this->type->value, ...$this->args]));
 
         if ($this->type !== CommandType::Magic) {
-            $writer->write(PHP_EOL);
+            $buffer->write(PHP_EOL);
         }
 
         if (\is_string($this->body)) {
-            $writer
+            $buffer
                 ->writeUint32(\strlen($this->body))
                 ->write($this->body);
         } elseif (\is_array($this->body)) {
@@ -163,10 +163,10 @@ final class Command
                 $bodySize += \strlen($body) + 4;
             }
 
-            $writer
+            $buffer
                 ->writeUint32($bodySize)
                 ->writeUint32(\count($this->body))
-                ->writeArray($this->body, $writer->writeUint32(...));
+                ->writeArray($this->body, $buffer->writeUint32(...));
         }
     }
 
