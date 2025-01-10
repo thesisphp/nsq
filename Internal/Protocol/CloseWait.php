@@ -8,4 +8,7 @@ namespace Typhoon\Nsq\Internal\Protocol;
  * @internal
  * @psalm-internal Typhoon\Nsq
  */
-interface Frame {}
+enum CloseWait implements Frame
+{
+    case frame;
+}

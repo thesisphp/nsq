@@ -5,28 +5,18 @@ declare(strict_types=1);
 namespace Typhoon\Nsq;
 
 use Amp\Cancellation;
-use Amp\Future;
-use Amp\Socket;
-use Typhoon\Nsq\Internal\Io\NsqConnection;
-use Typhoon\Nsq\Internal\Protocol;
+use Typhoon\Nsq\Internal\Io\Client;
 
 /**
  * @api
  */
 final class Producer
 {
-    private ?NsqConnection $connection = null;
+    private readonly Client $client;
 
-    public function __construct(
-        private readonly ProducerConfig $config,
-    ) {}
-
-    /**
-     * @throws \Throwable
-     */
-    public function ping(): void
+    public function __construct(Config $config)
     {
-        $this->connection()->command(Protocol\Command::nop());
+        $this->client = new Client($config);
     }
 
     /**
@@ -34,15 +24,9 @@ final class Producer
      * @param non-empty-string $message
      * @throws \Throwable
      */
-    public function pub(string|Topic $topic, string $message, ?Cancellation $cancellation = null): void
+    public function pub(string|Topic $topic, string $message): void
     {
-        if (\is_string($topic)) {
-            $topic = new Topic($topic);
-        }
-
-        $this
-            ->request(Protocol\Command::pub($topic, $message), $cancellation)
-            ->await($cancellation);
+        $this->client->pub(Topic::create($topic), $message);
     }
 
     /**
@@ -57,13 +41,7 @@ final class Producer
         int $delay,
         ?Cancellation $cancellation = null,
     ): void {
-        if (\is_string($topic)) {
-            $topic = new Topic($topic);
-        }
-
-        $this
-            ->request(Protocol\Command::dpub($topic, $message, $delay), $cancellation)
-            ->await($cancellation);
+        $this->client->dpub(Topic::create($topic), $message, $delay, $cancellation);
     }
 
     /**
@@ -76,63 +54,11 @@ final class Producer
         array $messages,
         ?Cancellation $cancellation = null,
     ): void {
-        if (\is_string($topic)) {
-            $topic = new Topic($topic);
-        }
-
-        $this
-            ->request(Protocol\Command::mpub($topic, $messages), $cancellation)
-            ->await($cancellation);
+        $this->client->mpub(Topic::create($topic), $messages, $cancellation);
     }
 
-    /**
-     * @throws \Throwable
-     */
-    public function close(?Cancellation $cancellation = null): void
+    public function close(): void
     {
-        $this->connection?->close($cancellation);
-    }
-
-    /**
-     * @template T
-     * @param Protocol\Command<T> $command
-     * @return Future<T>
-     * @throws \Throwable
-     */
-    private function request(Protocol\Command $command, ?Cancellation $cancellation = null): Future
-    {
-        return $this->connection()->request($command, $cancellation);
-    }
-
-    /**
-     * @throws \Throwable
-     */
-    private function connection(): NsqConnection
-    {
-        if ($this->connection === null) {
-            $context = (new Socket\ConnectContext())
-                ->withConnectTimeout($this->config->connectionTimeout);
-
-            if ($this->config->tcpNodelay) {
-                $context = $context->withTcpNoDelay();
-            }
-
-            $this->connection = new NsqConnection(
-                Socket\connect($this->config->host, $context),
-            );
-
-            $this->connection->open(new Protocol\Negotiate(
-                clientId: $this->config->clientId,
-                hostname: $this->config->hostname,
-                authenticationSecret: $this->config->authenticationSecret,
-                tlsv1: $this->config->tls,
-                deflate: $this->config->deflate,
-                deflateLevel: $this->config->deflateLevel,
-                snappy: $this->config->snappy,
-                userAgent: $this->config->userAgent,
-            ));
-        }
-
-        return $this->connection;
+        $this->client->close();
     }
 }

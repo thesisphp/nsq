@@ -17,12 +17,10 @@ final class Negotiate implements
 
     /**
      * @param positive-int $msgTimeout
-     * @param ?non-empty-string $authenticationSecret
      */
     public function __construct(
         private readonly string $clientId = '',
         private readonly string $hostname = '',
-        public readonly ?string $authenticationSecret = null,
         public readonly int $heartbeatInterval = self::DEFAULT_HEARTBEAT_INTERVAL,
         public readonly bool $tlsv1 = false,
         public readonly bool $deflate = false,
@@ -45,6 +43,7 @@ final class Negotiate implements
             'sample_rate' => $this->sampleRate,
             'user_agent' => $this->userAgent,
             'msg_timeout' => $this->msgTimeout,
+            'heartbeat_interval' => $this->heartbeatInterval,
             'feature_negotiation' => true,
         ];
     }

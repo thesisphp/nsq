@@ -24,6 +24,19 @@ final class Channel implements \Stringable
     }
 
     /**
+     * @param non-empty-string|self $channel
+     * @throws InvalidName
+     */
+    public static function create(string|self $channel): self
+    {
+        if (\is_string($channel)) {
+            $channel = new self($channel);
+        }
+
+        return $channel;
+    }
+
+    /**
      * @return non-empty-string
      */
     public function __toString(): string

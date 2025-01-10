@@ -14,8 +14,8 @@ namespace Typhoon\Nsq\Internal\Protocol;
  *     msg_timeout: positive-int,
  *     tls_v1: bool,
  *     deflate: bool,
- *     deflate_level: int,
- *     max_deflate_level: int,
+ *     deflate_level: int<1, 9>,
+ *     max_deflate_level: int<1, 9>,
  *     snappy: bool,
  *     sample_rate: int,
  *     auth_required: bool,
@@ -30,6 +30,8 @@ final class ServerConfig
      * @param non-empty-string $version
      * @param positive-int $maxMsgTimeout
      * @param positive-int $msgTimeout
+     * @param int<1, 9> $deflateLevel
+     * @param int<1, 9> $maxDeflateLevel
      */
     public function __construct(
         public readonly int $maxRdyCount,

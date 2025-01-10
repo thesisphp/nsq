@@ -8,4 +8,7 @@ namespace Typhoon\Nsq\Internal\Protocol;
  * @internal
  * @psalm-internal Typhoon\Nsq
  */
-interface Frame {}
+enum Ok implements Frame
+{
+    case frame;
+}

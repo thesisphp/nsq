@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Nsq\Internal\Protocol;
 
+use Typhoon\Nsq\Exception\ConnectionWasClosed;
 use Typhoon\Nsq\Internal\Io;
 
 /**
@@ -12,22 +13,28 @@ use Typhoon\Nsq\Internal\Io;
  */
 final class Writer
 {
-    private readonly Buffer $buffer;
-
     public function __construct(
         private readonly Io\Stream $stream,
-    ) {
-        $this->buffer = new Buffer();
+        private readonly Buffer $buffer = new Buffer(),
+    ) {}
+
+    public function upgrade(Io\Stream $stream): self
+    {
+        return new self(
+            $stream,
+            $this->buffer,
+        );
     }
 
     /**
-     * @throws \Throwable
+     * @throws ConnectionWasClosed
      */
     public function write(Command $command): void
     {
-        $command->write($this->buffer);
+        $command->writeTo($this->buffer);
 
         if (($bytes = $this->buffer->reset()) !== '') {
+            $this->stream->reference();
             $this->stream->write($bytes);
         }
     }

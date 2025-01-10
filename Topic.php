@@ -24,6 +24,19 @@ final class Topic implements \Stringable
     }
 
     /**
+     * @param non-empty-string|self $topic
+     * @throws InvalidName
+     */
+    public static function create(string|self $topic): self
+    {
+        if (\is_string($topic)) {
+            $topic = new self($topic);
+        }
+
+        return $topic;
+    }
+
+    /**
      * @return non-empty-string
      */
     public function __toString(): string

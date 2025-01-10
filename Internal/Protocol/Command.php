@@ -142,7 +142,7 @@ final class Command
         return new self(CommandType::Sub, [(string) $topic, (string) $channel]);
     }
 
-    public function write(WriteBytes $writer): void
+    public function writeTo(WriteBytes $writer): void
     {
         $writer->write(implode(' ', [$this->type->value, ...$this->args]));
 

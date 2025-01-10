@@ -8,7 +8,7 @@ namespace Typhoon\Nsq\Internal\Protocol;
  * @internal
  * @psalm-internal Typhoon\Nsq
  */
-final class Error implements \Stringable
+final class Error implements Frame, \Stringable
 {
     public function __construct(
         public readonly ErrorType $type,

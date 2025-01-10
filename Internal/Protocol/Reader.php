@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Typhoon\Nsq\Internal\Protocol;
 
 use Amp\Cancellation;
-use Typhoon\ByteOrder\ReadFrom;
+use Typhoon\Nsq\Exception\ConnectionWasClosed;
+use Typhoon\Nsq\Exception\NsqError;
+use Typhoon\Nsq\Exception\UnexpectedFrame;
+use Typhoon\Nsq\Internal\Io;
 
 /**
  * @internal
@@ -25,25 +28,45 @@ final class Reader
     /** @var int timestamp + attempts + message id */
     private const MESSAGE_HEADER_LENGTH = 8 + 2 + self::MESSAGE_ID_LENGTH;
 
-    private readonly ReadFrom $reader;
+    public function __construct(
+        private readonly Io\Stream $stream,
+        private readonly Buffer $buffer = new Buffer(),
+    ) {}
 
-    private readonly Buffer $buffer;
-
-    public function __construct(ReadFrom $reader)
+    public function upgrade(Io\Stream $stream): self
     {
-        $this->reader = $reader;
-        $this->buffer = new Buffer();
+        return new self(
+            $stream,
+            $this->buffer,
+        );
     }
 
-    public function read(?Cancellation $cancellation = null): Frame
+    /**
+     * @throws NsqError
+     */
+    public function readOk(?Cancellation $cancellation = null): Ok|Response|Message|CloseWait
     {
-        $this->buffer->write($this->reader->read(self::BODY_LENGTH, $cancellation));
-
-        if (($size = $this->buffer->readInt32()) > 0) {
-            $this->buffer->write($this->reader->read($size, $cancellation));
+        /** @var Ok|Response|Error|Message|CloseWait $frame */
+        $frame = $this->read($cancellation);
+        if ($frame instanceof Error) {
+            throw NsqError::fromError($frame);
         }
 
-        $type = FrameType::tryFrom($type = $this->buffer->readInt32()) ?: throw new \RuntimeException("Unexpected frame type '{$type}'.");
+        return $frame;
+    }
+
+    /**
+     * @throws ConnectionWasClosed
+     */
+    public function read(?Cancellation $cancellation = null): Frame
+    {
+        $this->buffer->write($this->stream->read(self::BODY_LENGTH, $cancellation));
+
+        if (($size = $this->buffer->readInt32()) > 0) {
+            $this->buffer->write($this->stream->read($size, $cancellation));
+        }
+
+        $type = FrameType::tryFrom($type = $this->buffer->readInt32()) ?: throw UnexpectedFrame::forType($type);
 
         $bodySize = match ($type) {
             FrameType::Response, FrameType::Error => $size - self::FRAME_TYPE,
@@ -52,8 +75,8 @@ final class Reader
 
         \assert($bodySize > 0, 'body size should be positive.');
 
-        return new Frame(match ($type) {
-            FrameType::Response => new Response($this->buffer->read($bodySize)),
+        return match ($type) {
+            FrameType::Response => Response::parse($this->buffer->read($bodySize)),
             FrameType::Error => Error::parse($this->buffer->read($bodySize)),
             FrameType::Message => new Message(
                 timestamp: $this->buffer->readUint64(),
@@ -61,6 +84,6 @@ final class Reader
                 id: $this->buffer->read(self::MESSAGE_ID_LENGTH),
                 body: $this->buffer->read($bodySize),
             ),
-        });
+        };
     }
 }

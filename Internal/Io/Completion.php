@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Typhoon\Nsq\Internal\Io;
 
 use Amp\DeferredFuture;
+use Typhoon\Nsq\Exception\NsqError;
 use Typhoon\Nsq\Internal\Protocol;
 
 /**
@@ -25,16 +26,16 @@ final class Completion
 
     public function complete(Protocol\Frame $response): void
     {
-        if ($response->value instanceof Protocol\Response) {
+        if ($response instanceof Protocol\Error) {
+            $this->deferred->error(NsqError::fromError($response));
+        } elseif ($response instanceof Protocol\Response) {
             try {
-                $this->deferred->complete($this->command->parse(
-                    $response->value,
-                ));
+                $this->deferred->complete($this->command->parse($response));
             } catch (\Throwable $e) {
                 $this->deferred->error($e);
             }
-        } elseif ($response->value instanceof Protocol\Error) {
-            $this->deferred->error(new \Exception($response->value->explanation));
+        } else {
+            $this->deferred->complete($response);
         }
     }
 

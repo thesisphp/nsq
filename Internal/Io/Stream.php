@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Typhoon\Nsq\Internal\Io;
 
-use Typhoon\Nsq\Internal\Protocol\Frame;
+use Amp\Cancellation;
+use Typhoon\Nsq\Exception\ConnectionWasClosed;
 
 /**
  * @internal
@@ -14,15 +15,22 @@ interface Stream
 {
     /**
      * @param non-empty-string $bytes
-     * @throws \Throwable
+     * @throws ConnectionWasClosed
      */
     public function write(string $bytes): void;
 
-    public function receive(): ?Frame;
+    /**
+     * @param positive-int $limit
+     * @return non-empty-string
+     * @throws ConnectionWasClosed
+     */
+    public function read(int $limit, ?Cancellation $cancellation = null): string;
 
     public function reference(): void;
 
     public function unreference(): void;
+
+    public function isClosed(): bool;
 
     public function close(): void;
 }

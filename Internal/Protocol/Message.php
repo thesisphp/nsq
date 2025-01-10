@@ -8,13 +8,13 @@ namespace Typhoon\Nsq\Internal\Protocol;
  * @internal
  * @psalm-internal Typhoon\Nsq
  */
-final class Message
+final class Message implements Frame
 {
     /**
+     * @param non-negative-int $timestamp
+     * @param non-negative-int $attempts
      * @param non-empty-string $id
      * @param non-empty-string $body
-     * @param non-negative-int $attempts
-     * @param non-negative-int $timestamp
      */
     public function __construct(
         public readonly int $timestamp,
