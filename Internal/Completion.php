@@ -2,11 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Nsq\Internal\Io;
+namespace Typhoon\Nsq\Internal;
 
 use Amp\DeferredFuture;
 use Typhoon\Nsq\Exception\NsqError;
-use Typhoon\Nsq\Internal\Protocol;
 
 /**
  * @internal

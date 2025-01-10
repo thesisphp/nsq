@@ -5,18 +5,17 @@ declare(strict_types=1);
 namespace Typhoon\Nsq;
 
 use Amp\Cancellation;
-use Typhoon\Nsq\Internal\Io\Client;
 
 /**
  * @api
  */
 final class Producer
 {
-    private readonly Client $client;
+    private readonly Internal\Client $client;
 
     public function __construct(Config $config)
     {
-        $this->client = new Client($config);
+        $this->client = new Internal\Client($config);
     }
 
     /**
@@ -24,15 +23,18 @@ final class Producer
      * @param non-empty-string $message
      * @throws \Throwable
      */
-    public function pub(string|Topic $topic, string $message): void
-    {
-        $this->client->pub(Topic::create($topic), $message);
+    public function pub(
+        string|Topic $topic,
+        string $message,
+        ?Cancellation $cancellation = null,
+    ): void {
+        $this->client->pub(Topic::create($topic), $message, $cancellation);
     }
 
     /**
      * @param non-empty-string|Topic $topic
      * @param non-empty-string $message
-     * @param non-negative-int $delay
+     * @param non-negative-int $delay in milliseconds
      * @throws \Throwable
      */
     public function dpub(

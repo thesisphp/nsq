@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Nsq\Internal\Io;
+namespace Typhoon\Nsq\Internal\Queue;
 
 /**
  * @template T
  * @internal
  * @psalm-internal Typhoon\Nsq
  */
-final class Queue
+final class Deq
 {
     /** @var \SplQueue<T> */
     private readonly \SplQueue $splQueue;
@@ -47,3 +47,4 @@ final class Queue
         }
     }
 }
+

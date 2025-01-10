@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Typhoon\Nsq\Internal\Io;
+namespace Typhoon\Nsq\Internal;
 
 use Amp\Cancellation;
 use Amp\DeferredFuture;
@@ -11,7 +11,6 @@ use Amp\Pipeline;
 use Revolt\EventLoop;
 use Typhoon\Nsq\Channel;
 use Typhoon\Nsq\Config;
-use Typhoon\Nsq\Internal\Protocol;
 use Typhoon\Nsq\Topic;
 
 /**
@@ -20,20 +19,20 @@ use Typhoon\Nsq\Topic;
  */
 final class Client
 {
-    private readonly Connection $connection;
+    private readonly Io\Connection $connection;
 
-    /** @var Queue<Completion> */
-    private readonly Queue $completionQueue;
+    /** @var Queue\Deq<Completion> */
+    private readonly Queue\Deq $completionQueue;
 
     /** @var Pipeline\ConcurrentIterator<Protocol\Message> */
     private readonly Pipeline\ConcurrentIterator $messages;
 
     public function __construct(Config $config)
     {
-        $this->connection = $connection = new Connection($config);
+        $this->connection = $connection = new Io\Connection($config);
 
-        /** @var Queue<Completion> $completionQueue */
-        $completionQueue = new Queue();
+        /** @var Queue\Deq<Completion> $completionQueue */
+        $completionQueue = new Queue\Deq();
         $this->completionQueue = $completionQueue;
 
         /** @var Pipeline\Queue<Protocol\Message> $messages */

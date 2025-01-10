@@ -9,6 +9,7 @@ use Revolt\EventLoop;
 use Typhoon\Nsq\Config;
 use Typhoon\Nsq\Exception\ConnectionWasClosed;
 use Typhoon\Nsq\Internal\Protocol;
+use Typhoon\Nsq\Internal\Queue;
 
 /**
  * @internal
@@ -22,8 +23,8 @@ final class Connection
     /** @var Pipeline\Queue<Protocol\Frame> */
     private readonly Pipeline\Queue $queue;
 
-    /** @var Queue<Protocol\Command> */
-    private readonly Queue $commands;
+    /** @var Queue\Deq<Protocol\Command> */
+    private readonly Queue\Deq $commands;
 
     private readonly StreamConnector $connector;
 
@@ -42,8 +43,8 @@ final class Connection
         $this->queue = $queue;
         $this->iterator = $queue->iterate();
 
-        /** @var Queue<Protocol\Command> $commands */
-        $commands = new Queue();
+        /** @var Queue\Deq<Protocol\Command> $commands */
+        $commands = new Queue\Deq();
         $this->commands = $commands;
     }
 
