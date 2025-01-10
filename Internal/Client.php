@@ -63,17 +63,6 @@ final class Client
     }
 
     /**
-     * @param non-empty-string $message
-     * @throws \Throwable
-     */
-    public function pub(Topic $topic, string $message, ?Cancellation $cancellation = null): void
-    {
-        $this
-            ->queue(Protocol\Command::pub($topic, $message))
-            ->await($cancellation);
-    }
-
-    /**
      * @throws \Throwable
      */
     public function sub(Topic $topic, Channel $channel, ?Cancellation $cancellation = null): void
@@ -84,21 +73,14 @@ final class Client
     }
 
     /**
-     * @param non-negative-int $count
+     * @param non-empty-string $message
      * @throws \Throwable
      */
-    public function rdy(int $count): void
+    public function pub(Topic $topic, string $message, ?Cancellation $cancellation = null): void
     {
-        $this->queue(Protocol\Command::rdy($count), wait: false);
-    }
-
-    /**
-     * @param non-empty-string $id
-     * @throws \Throwable
-     */
-    public function fin(string $id): void
-    {
-        $this->queue(Protocol\Command::fin($id), wait: false);
+        $this
+            ->queue(Protocol\Command::pub($topic, $message))
+            ->await($cancellation);
     }
 
     /**
@@ -129,6 +111,51 @@ final class Client
         $this
             ->queue(Protocol\Command::mpub($topic, $messages))
             ->await($cancellation);
+    }
+
+    /**
+     * @param non-negative-int $count
+     * @throws \Throwable
+     */
+    public function rdy(int $count): void
+    {
+        $this->queue(Protocol\Command::rdy($count), wait: false);
+    }
+
+    /**
+     * @param non-empty-string $id
+     * @throws \Throwable
+     */
+    public function fin(string $id): void
+    {
+        $this->queue(Protocol\Command::fin($id), wait: false);
+    }
+
+    /**
+     * @param non-empty-string $id
+     * @throws \Throwable
+     */
+    public function touch(string $id): void
+    {
+        $this->queue(Protocol\Command::touch($id), wait: false);
+    }
+
+    /**
+     * @param non-empty-string $id
+     * @param non-negative-int $timeout
+     * @throws \Throwable
+     */
+    public function requeue(string $id, int $timeout): void
+    {
+        $this->queue(Protocol\Command::requeue($id, $timeout), wait: false);
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function cls(?Cancellation $cancellation = null): void
+    {
+        $this->queue(Protocol\Command::cls())->await($cancellation);
     }
 
     public function close(): void
