@@ -27,9 +27,12 @@ final class Client
     /** @var Pipeline\ConcurrentIterator<Protocol\Message> */
     private readonly Pipeline\ConcurrentIterator $messages;
 
-    public function __construct(Config $config)
+    /**
+     * @param non-empty-string $host
+     */
+    public function __construct(string $host, Config $config)
     {
-        $this->connection = $connection = new Io\Connection($config);
+        $this->connection = $connection = new Io\Connection($host, $config);
 
         /** @var Queue\Deq<Completion> $completionQueue */
         $completionQueue = new Queue\Deq();
@@ -142,7 +145,7 @@ final class Client
 
     /**
      * @param non-empty-string $id
-     * @param non-negative-int $timeout
+     * @param non-negative-int $timeout in milliseconds
      * @throws \Throwable
      */
     public function requeue(string $id, int $timeout): void

@@ -27,13 +27,11 @@ final class Config
     public readonly bool $snappy;
 
     /**
-     * @param non-empty-string $host
      * @param ?non-empty-string $authenticationSecret
      * @param float $connectionTimeout in seconds
      * @param int<1, 9> $deflateLevel
      */
     public function __construct(
-        public readonly string $host,
         public readonly ?string $authenticationSecret = null,
         public readonly bool $tcpNodelay = false,
         public readonly float $connectionTimeout = self::DEFAULT_CONNECTION_TIMEOUT,

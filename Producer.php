@@ -13,9 +13,14 @@ final class Producer
 {
     private readonly Internal\Client $client;
 
-    public function __construct(Config $config)
-    {
-        $this->client = new Internal\Client($config);
+    /**
+     * @param non-empty-string $host
+     */
+    public function __construct(
+        string $host,
+        Config $config,
+    ) {
+        $this->client = new Internal\Client($host, $config);
     }
 
     /**

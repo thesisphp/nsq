@@ -34,9 +34,12 @@ final class Connection
 
     private bool $running = false;
 
-    public function __construct(Config $config)
+    /**
+     * @param non-empty-string $host
+     */
+    public function __construct(string $host, Config $config)
     {
-        $this->connector = new StreamConnector($config);
+        $this->connector = new StreamConnector($host, $config);
 
         /** @var Pipeline\Queue<Protocol\Frame> $queue */
         $queue = new Pipeline\Queue();

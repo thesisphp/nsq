@@ -20,7 +20,11 @@ use Typhoon\Nsq\Internal\Protocol;
  */
 final class StreamConnector
 {
+    /**
+     * @param non-empty-string $host
+     */
     public function __construct(
+        private readonly string $host,
         private readonly Config $config,
     ) {}
 
@@ -36,7 +40,7 @@ final class StreamConnector
             $context = $context->withTcpNoDelay();
         }
 
-        $socket = Socket\connect($this->config->host, $context);
+        $socket = Socket\connect($this->host, $context);
 
         $stream = new SocketStream($socket);
         [$writer, $reader] = [new Protocol\Writer($stream), new Protocol\Reader($stream)];

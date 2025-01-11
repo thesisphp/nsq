@@ -10,6 +10,7 @@ use Amp\Http\Client\HttpClientBuilder;
 use Amp\Http\Client\HttpException;
 use Amp\Http\Client\Request;
 use Amp\Http\HttpStatus;
+use Typhoon\Nsq\Topic;
 use function Amp\async;
 
 /**
@@ -37,11 +38,10 @@ final class LookupClient
     }
 
     /**
-     * @param non-empty-string $topic
      * @throws UnableToLookup
      * @throws TopicNotFound
      */
-    public function lookup(string $topic): LookupResult
+    public function lookup(Topic $topic): LookupResult
     {
         $futures = [];
         foreach ($this->hosts as $host) {
@@ -73,11 +73,10 @@ final class LookupClient
 
     /**
      * @param non-empty-string $host
-     * @param non-empty-string $topic
      * @throws UnableToLookup
      * @throws TopicNotFound
      */
-    private function doLookup(string $host, string $topic): LookupResponse
+    private function doLookup(string $host, Topic $topic): LookupResponse
     {
         $request = new Request("{$host}/lookup?topic={$topic}");
         $request->setHeaders([
@@ -91,7 +90,7 @@ final class LookupClient
         }
 
         if ($response->getStatus() === HttpStatus::NOT_FOUND) {
-            throw new TopicNotFound();
+            return new LookupResponse();
         }
 
         if ($response->getStatus() >= HttpStatus::BAD_REQUEST) {

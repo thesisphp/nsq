@@ -51,6 +51,14 @@ final class ProducerInfo implements \Stringable
     }
 
     /**
+     * @return non-empty-string
+     */
+    public function connectionDsn(): string
+    {
+        return "tcp://{$this->broadcastAddress}:{$this->tcpPort}";
+    }
+
+    /**
      * @return non-empty-string an unique hash key for producer info
      */
     public function __toString(): string
