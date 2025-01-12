@@ -38,6 +38,19 @@ final class LookupClient
     }
 
     /**
+     * @param list<Topic> $topics
+     * @return \Traversable<Topic, LookupResult>
+     * @throws UnableToLookup
+     * @throws TopicNotFound
+     */
+    public function lookupAny(array $topics): \Traversable
+    {
+        foreach ($topics as $topic) {
+            yield $topic => $this->lookup($topic);
+        }
+    }
+
+    /**
      * @throws UnableToLookup
      * @throws TopicNotFound
      */
