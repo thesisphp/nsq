@@ -18,7 +18,7 @@ final class ConsumerSupervisor
     private const STATE_RUN = 1;
 
     /** @var positive-int in seconds */
-    private const LOOKUP_INTERVAL = 3;
+    private const LOOKUP_INTERVAL = 15;
 
     /** @var self::* */
     private int $state = self::STATE_STOPPED;
