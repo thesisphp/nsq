@@ -1,0 +1,64 @@
+<?php
+
+declare(strict_types=1);
+
+namespace Typhoon\Nsq;
+
+/**
+ * @api
+ * @psalm-type Fin = callable(non-empty-string): void
+ * @psalm-type Touch = callable(non-empty-string): void
+ * @psalm-type Requeue = callable(non-empty-string, non-negative-int): void
+ */
+final class Message
+{
+    /** @var Fin */
+    private $fin;
+
+    /** @var Touch */
+    private $touch;
+
+    /** @var Requeue */
+    private $requeue;
+
+    /**
+     * @param Fin $fin
+     * @param Touch $touch
+     * @param Requeue $requeue
+     * @param non-empty-string $id
+     * @param non-empty-string $body
+     * @param non-negative-int $timestamp
+     * @param non-negative-int $attempts
+     */
+    public function __construct(
+        callable $fin,
+        callable $touch,
+        callable $requeue,
+        public readonly string $id,
+        public readonly string $body,
+        public readonly int $timestamp,
+        public readonly int $attempts,
+    ) {
+        $this->fin = $fin;
+        $this->touch = $touch;
+        $this->requeue = $requeue;
+    }
+
+    public function fin(): void
+    {
+        ($this->fin)($this->id);
+    }
+
+    public function touch(): void
+    {
+        ($this->touch)($this->id);
+    }
+
+    /**
+     * @param non-negative-int $timeout in milliseconds
+     */
+    public function requeue(int $timeout): void
+    {
+        ($this->requeue)($this->id, $timeout);
+    }
+}
