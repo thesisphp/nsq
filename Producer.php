@@ -25,6 +25,33 @@ final class Producer
 
     /**
      * @param non-empty-string|Topic $topic
+     * @param list<Message>|Message $messages
+     * @throws \Throwable
+     */
+    public function publish(
+        string|Topic $topic,
+        array|Message $messages,
+        ?Cancellation $cancellation = null,
+    ): void {
+        if (!\is_array($messages)) {
+            $messages = [$messages];
+        }
+
+        if (\count($messages) === 0) {
+            return;
+        }
+
+        if (\count($messages) > 1) {
+            $this->mpub($topic, array_map(static fn(Message $message): string => $message->body, $messages), $cancellation);
+        } elseif ($messages[0]->delay !== null) {
+            $this->dpub($topic, $messages[0]->body, $messages[0]->delay, $cancellation);
+        } else {
+            $this->pub($topic, $messages[0]->body, $cancellation);
+        }
+    }
+
+    /**
+     * @param non-empty-string|Topic $topic
      * @param non-empty-string $message
      * @throws \Throwable
      */
