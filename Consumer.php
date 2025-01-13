@@ -6,7 +6,7 @@ namespace Typhoon\Nsq;
 
 /**
  * @api
- * @psalm-type Consume = callable(Message): void
+ * @psalm-type Consume = callable(Delivery): void
  */
 final class Consumer
 {
@@ -24,7 +24,7 @@ final class Consumer
         $this->callback = $callback;
     }
 
-    public function __invoke(Message $message): void
+    public function __invoke(Delivery $message): void
     {
         ($this->callback)($message);
     }

@@ -10,7 +10,7 @@ namespace Typhoon\Nsq;
  * @psalm-type Touch = callable(non-empty-string): void
  * @psalm-type Requeue = callable(non-empty-string, non-negative-int): void
  */
-final class Message
+final class Delivery
 {
     /** @var Fin */
     private $fin;

@@ -7,7 +7,7 @@ namespace Typhoon\Nsq\Internal;
 use Revolt\EventLoop;
 use Typhoon\Nsq\Channel;
 use Typhoon\Nsq\Consumer;
-use Typhoon\Nsq\Message;
+use Typhoon\Nsq\Delivery;
 use Typhoon\Nsq\Topic;
 
 /**
@@ -35,7 +35,7 @@ final class Worker
             $rdy = $consumer->rdy;
 
             while (($message = $client->receive()) !== null) {
-                $consumer(new Message(
+                $consumer(new Delivery(
                     fin: $client->fin(...),
                     touch: $client->touch(...),
                     requeue: $client->requeue(...),
