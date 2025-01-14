@@ -57,30 +57,31 @@ final class ConsumerSupervisor
     /**
      * @param non-empty-string|Topic $topic
      * @param non-empty-string|Channel $channel
-     * @param Consumer|Consume $consumer
+     * @param Consume|Consumer $consumer
      * @throws \Throwable
      */
     public function consume(
         string|Topic $topic,
         string|Channel $channel,
-        Consumer|callable $consumer,
+        callable|Consumer $consumer,
     ): void {
         $topic = Topic::create($topic);
         $channel = Channel::create($channel);
 
-        $this->assertExactlyOnce($topic, $channel);
+        $workerKey = "{$topic}:{$channel}";
 
-        if (!$consumer instanceof Consumer) {
-            $consumer = new Consumer($consumer);
+        if (isset($this->exactlyOnce[$workerKey])) {
+            throw new \LogicException(\sprintf('Channel "%s" for topic "%s" is already registered.', $channel, $topic));
         }
 
+        $this->exactlyOnce[$workerKey] = true;
         $this->topics[$topic->name] = $topic;
         $this->topicsToWorkers[$topic->name][] = new ChannelWorker(
             channel: $channel,
             worker: new Internal\Worker(
                 topic: $topic,
                 channel: $channel,
-                consumer: $consumer,
+                consumer: !$consumer instanceof Consumer ? $consumer : new Consumer($consumer),
             ),
         );
     }
@@ -146,20 +147,6 @@ final class ConsumerSupervisor
                 }
             }
         }
-    }
-
-    /**
-     * @throws \LogicException
-     */
-    private function assertExactlyOnce(Topic $topic, Channel $channel): void
-    {
-        $workerKey = "{$topic}:{$channel}";
-
-        if (isset($this->exactlyOnce[$workerKey])) {
-            throw new \LogicException(\sprintf('Channel "%s" for topic "%s" is already registered.', $channel, $topic));
-        }
-
-        $this->exactlyOnce[$workerKey] = true;
     }
 }
 
