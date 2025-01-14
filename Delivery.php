@@ -38,6 +38,7 @@ final class Delivery
         public readonly string $body,
         public readonly int $timestamp,
         public readonly int $attempts,
+        private Internal\DeliveryState $state = Internal\DeliveryState::Received,
     ) {
         $this->fin = $fin;
         $this->touch = $touch;
@@ -46,12 +47,18 @@ final class Delivery
 
     public function fin(): void
     {
-        ($this->fin)($this->id);
+        $this->proceed(
+            fn() => ($this->fin)($this->id),
+            Internal\DeliveryState::Finished,
+        );
     }
 
     public function touch(): void
     {
-        ($this->touch)($this->id);
+        $this->proceed(
+            fn() => ($this->touch)($this->id),
+            Internal\DeliveryState::Touched,
+        );
     }
 
     /**
@@ -59,6 +66,22 @@ final class Delivery
      */
     public function requeue(int $timeout): void
     {
-        ($this->requeue)($this->id, $timeout);
+        $this->proceed(
+            fn() => ($this->requeue)($this->id, $timeout),
+            Internal\DeliveryState::Requeued,
+        );
+    }
+
+    /**
+     * @param callable(): void $do
+     */
+    private function proceed(callable $do, Internal\DeliveryState $to): void
+    {
+        if ($this->state->completed()) {
+            throw Exception\MessageWasProcessed::fromState($this->state);
+        }
+
+        $this->state = $to;
+        $do();
     }
 }
