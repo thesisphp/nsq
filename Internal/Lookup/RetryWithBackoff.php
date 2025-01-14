@@ -22,9 +22,9 @@ final class RetryWithBackoff implements ApplicationInterceptor
      */
     public function __construct(
         private readonly int $attempts,
-        private readonly float $sleep = 0.2,
-        private readonly float $maxSleep = 1,
-        private readonly float $jitter = 0.1,
+        private readonly float $sleep,
+        private readonly float $maxSleep,
+        private readonly float $jitter,
     ) {}
 
     public function request(Request $request, Cancellation $cancellation, DelegateHttpClient $httpClient): Response
