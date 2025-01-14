@@ -6,7 +6,6 @@ namespace Typhoon\Nsq\Internal\Lookup;
 
 use Amp\Future;
 use Amp\Http\Client\HttpClient;
-use Amp\Http\Client\HttpClientBuilder;
 use Amp\Http\Client\HttpException;
 use Amp\Http\Client\Request;
 use Amp\Http\HttpStatus;
@@ -20,22 +19,13 @@ use function Amp\async;
  */
 final class LookupClient
 {
-    /** @var positive-int */
-    private const DEFAULT_RETRY_LIMIT = 5;
-
-    private readonly HttpClient $httpClient;
-
     /**
      * @param non-empty-list<non-empty-string> $hosts
      */
     public function __construct(
         private readonly array $hosts,
-        ?HttpClient $httpClient = null,
-    ) {
-        $this->httpClient = $httpClient ?: (new HttpClientBuilder())
-            ->retry(self::DEFAULT_RETRY_LIMIT)
-            ->build();
-    }
+        private readonly HttpClient $httpClient,
+    ) {}
 
     /**
      * @param list<Topic> $topics

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Typhoon\Nsq;
 
-use Amp\Http\Client\HttpClient;
+use Amp\Http\Client\HttpClientBuilder;
 use Revolt\EventLoop;
 use Typhoon\Nsq\Internal\Lookup;
 
@@ -16,9 +16,6 @@ final class ConsumerSupervisor
 {
     private const STATE_STOPPED = 0;
     private const STATE_RUN = 1;
-
-    /** @var positive-int in seconds */
-    private const LOOKUP_INTERVAL = 15;
 
     /** @var self::* */
     private int $state = self::STATE_STOPPED;
@@ -39,17 +36,21 @@ final class ConsumerSupervisor
     /** @var array<non-empty-string, list<ChannelWorker>> */
     private array $topicsToWorkers = [];
 
-    /**
-     * @param non-empty-list<non-empty-string> $lookupHosts
-     */
     public function __construct(
-        array $lookupHosts,
+        private readonly LookupConfig $lookup,
         private readonly Config $config,
-        ?HttpClient $httpClient = null,
     ) {
         $this->lookupClient = new Lookup\LookupClient(
-            $lookupHosts,
-            $httpClient,
+            $this->lookup->hosts,
+            (new HttpClientBuilder())
+                ->retry(0) // need to use a more controlled retry mechanism with exponential backoff (@see RetryWithBackoff).
+                ->intercept(new Lookup\RetryWithBackoff(
+                    attempts: $this->lookup->attempts,
+                    sleep: $this->lookup->sleep,
+                    maxSleep: $this->lookup->maxSleep,
+                    jitter: $this->lookup->jitter,
+                ))
+                ->build(),
         );
     }
 
@@ -99,7 +100,7 @@ final class ConsumerSupervisor
         EventLoop::queue($this->lookup(...));
 
         $this->lookupReferenceId = EventLoop::repeat(
-            self::LOOKUP_INTERVAL,
+            $this->lookup->interval,
             $this->lookup(...),
         );
     }
