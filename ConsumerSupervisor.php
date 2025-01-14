@@ -81,7 +81,7 @@ final class ConsumerSupervisor
             worker: new Internal\Worker(
                 topic: $topic,
                 channel: $channel,
-                consumer: !$consumer instanceof Consumer ? $consumer : new Consumer($consumer),
+                consumer: !$consumer instanceof Consumer ? new Consumer($consumer) : $consumer,
             ),
         );
     }
