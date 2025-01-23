@@ -1,0 +1,12 @@
+{
+  "symbol-whitelist": [
+    "InflateContext",
+    "DeflateContext",
+    "inflate_add",
+    "deflate_add",
+    "inflate_init",
+    "deflate_init",
+    "ZLIB_ENCODING_RAW",
+    "ZLIB_SYNC_FLUSH"
+  ]
+}
