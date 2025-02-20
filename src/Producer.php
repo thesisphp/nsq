@@ -18,7 +18,7 @@ final class Producer
      */
     public function __construct(
         string $host,
-        Config $config,
+        Config $config = new Config(),
     ) {
         $this->client = new Internal\Client($host, $config);
     }
