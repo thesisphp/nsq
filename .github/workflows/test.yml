@@ -9,7 +9,7 @@ jobs:
     services:
       nsqd0:
         image: nsqio/nsq:v1.3.0
-        command: >-
+        options: >-
           nsqd
           --log-level debug
           --lookupd-tcp-address nsqlookupd0:4160
@@ -17,18 +17,18 @@ jobs:
           --deflate=true
       nsqd1:
         image: nsqio/nsq:v1.3.0
-        command: >-
+        options: >-
           nsqd
           --log-level debug
           --lookupd-tcp-address nsqlookupd0:4160
           --deflate=true
       nsqlookupd0:
         image: nsqio/nsq:v1.3.0
-        command: /nsqlookupd -log-level debug
+        options: /nsqlookupd -log-level debug
       nsq-auth:
         image: zhimiao/nsq-auth:latest
         restart: always
-        command: --secret="jV22WdmaXxHWAiAh"
+        options: --secret="jV22WdmaXxHWAiAh"
     strategy:
       matrix:
         php: ["8.3"]
