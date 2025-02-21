@@ -252,3 +252,7 @@ $producer = new Nsq\Producer('tcp://127.0.0.1:4150', new Nsq\Config(
     authenticationSecret: 'secret',
 ));
 ```
+
+### Examples
+
+More examples can be found [here](examples).
