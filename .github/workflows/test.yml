@@ -27,7 +27,6 @@ jobs:
         options: /nsqlookupd -log-level debug
       nsq-auth:
         image: zhimiao/nsq-auth:latest
-        restart: always
         options: --secret="jV22WdmaXxHWAiAh"
     strategy:
       matrix:
