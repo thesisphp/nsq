@@ -72,6 +72,16 @@ final class Delivery
         );
     }
 
+    public function dateTime(\DateTimeZone $tz = new \DateTimeZone('UTC')): \DateTimeImmutable
+    {
+        $seconds = intdiv($this->timestamp, 1_000_000_000);
+        $microseconds = (int) (($this->timestamp % 1_000_000_000) / 1000);
+
+        return (new \DateTimeImmutable(timezone: $tz))
+            ->setTimestamp($seconds)
+            ->modify("+{$microseconds} microseconds");
+    }
+
     /**
      * @param callable(): void $do
      */
