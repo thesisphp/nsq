@@ -10,8 +10,6 @@ use function Amp\trapSignal;
 $supervisor = new Nsq\ConsumerSupervisor(
     new Nsq\LookupConfig(hosts: [
         'http://nsqlookupd0:4161',
-        'http://nsqlookupd0:4161',
-        'http://nsqlookupd0:4161',
     ]),
     new Nsq\Config(authenticationSecret: 'jV22WdmaXxHWAiAh'),
 );

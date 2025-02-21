@@ -1,0 +1,51 @@
+on:
+  push:
+    branches: ['main', '*.*.x']
+  pull_request: ~
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      nsqd0:
+        image: nsqio/nsq:v1.3.0
+        command: >-
+          nsqd
+          --log-level debug
+          --lookupd-tcp-address nsqlookupd0:4160
+          --auth-http-address="nsq-auth:1325"
+          --deflate=true
+      nsqd1:
+        image: nsqio/nsq:v1.3.0
+        command: >-
+          nsqd
+          --log-level debug
+          --lookupd-tcp-address nsqlookupd0:4160
+          --deflate=true
+      nsqlookupd0:
+        image: nsqio/nsq:v1.3.0
+        command: /nsqlookupd -log-level debug
+      nsq-auth:
+        image: zhimiao/nsq-auth:latest
+        restart: always
+        command: --secret="jV22WdmaXxHWAiAh"
+    strategy:
+      matrix:
+        php: ["8.3"]
+        dependencies: ["locked", "lowest", "highest"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          ini-file: development
+          tools: composer:v2
+          extensions: pcntl
+          ini-values: disable_functions=pcntl_fork
+      - uses: ramsey/composer-install@v3
+        with:
+          composer-options: --optimize-autoloader
+          dependency-versions: ${{ matrix.dependencies }}
+        env:
+          COMPOSER_AUTH: ${{ secrets.COMPOSER_AUTH || '{}' }}
+      - run: THESIS_NSQ_PRODUCER0_HOST=tcp://nsqd0:4150 THESIS_NSQ_PRODUCER1_HOST=tcp://nsqd0:4150 THESIS_NSQ_AUTH_SECRET=jV22WdmaXxHWAiAh THESIS_NSQ_LOOKUP_HOSTS=http://nsqlookupd0:4161 composer test -- --colors=always

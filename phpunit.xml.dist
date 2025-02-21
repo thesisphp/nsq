@@ -12,7 +12,10 @@
     <php>
         <ini name="display_errors" value="1"/>
         <ini name="error_reporting" value="-1"/>
-        <env name="THESIS_MEMCACHED_HOST" value="tcp://127.0.0.1:11211"/>
+        <env name="THESIS_NSQ_PRODUCER0_HOST" value="tcp://nsqd0:4150"/>
+        <env name="THESIS_NSQ_PRODUCER1_HOST" value="tcp://nsqd1:4150"/>
+        <env name="THESIS_NSQ_AUTH_SECRET" value="jV22WdmaXxHWAiAh"/>
+        <env name="THESIS_NSQ_LOOKUP_HOSTS" value="http://nsqlookupd0:4161"/>
     </php>
 
     <testsuites>
