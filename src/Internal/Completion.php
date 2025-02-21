@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Thesis\Nsq\Internal;
 
 use Amp\DeferredFuture;
-use Thesis\Nsq\Exception\NsqError;
 
 /**
  * @internal
@@ -25,7 +24,7 @@ final class Completion
     public function complete(Protocol\Frame $response): void
     {
         if ($response instanceof Protocol\Error) {
-            $this->deferred->error(NsqError::fromError($response));
+            $this->deferred->error($response->toException());
         } elseif ($response instanceof Protocol\Response) {
             try {
                 $this->deferred->complete($this->command->parse($response));

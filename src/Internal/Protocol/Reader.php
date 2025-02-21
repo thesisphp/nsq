@@ -6,7 +6,6 @@ namespace Thesis\Nsq\Internal\Protocol;
 
 use Amp\Cancellation;
 use Thesis\Nsq\Exception\ConnectionWasClosed;
-use Thesis\Nsq\Exception\NsqError;
 use Thesis\Nsq\Exception\UnexpectedFrame;
 use Thesis\Nsq\Internal\Io;
 
@@ -41,14 +40,14 @@ final class Reader
     }
 
     /**
-     * @throws NsqError
+     * @throws \Throwable
      */
     public function readOk(?Cancellation $cancellation = null): Ok|Response|Message|CloseWait
     {
         /** @var Ok|Response|Error|Message|CloseWait $frame */
         $frame = $this->read($cancellation);
         if ($frame instanceof Error) {
-            throw NsqError::fromError($frame);
+            throw $frame->toException();
         }
 
         return $frame;

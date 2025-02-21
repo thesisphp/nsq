@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Thesis\Nsq\Internal\Protocol;
 
+use Thesis\Nsq\Exception\AuthenticationFailed;
+use Thesis\Nsq\Exception\NsqError;
+
 /**
  * @internal
  */
@@ -22,6 +25,14 @@ final class Error implements Frame, \Stringable
             ErrorType::tryFrom($chunks[0]) ?: ErrorType::E_INVALID,
             implode(' ', \array_slice($chunks, 1)),
         );
+    }
+
+    public function toException(): \Throwable
+    {
+        return match ($this->type) {
+            ErrorType::E_AUTH_FAILED => new AuthenticationFailed($this->explanation),
+            default => new NsqError($this->explanation),
+        };
     }
 
     /**
