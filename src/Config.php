@@ -33,7 +33,7 @@ final class Config
      */
     public function __construct(
         public readonly ?string $authenticationSecret = null,
-        public readonly bool $tcpNodelay = false,
+        public readonly bool $tcpNodelay = true,
         public readonly float $connectionTimeout = self::DEFAULT_CONNECTION_TIMEOUT,
         public readonly bool $tls = false,
         ?bool $snappy = null,
