@@ -38,7 +38,7 @@ final class ConsumerSupervisor
 
     public function __construct(
         private readonly LookupConfig $lookup,
-        private readonly Config $config,
+        private readonly Config $config = new Config(),
     ) {
         $this->lookupClient = new Lookup\LookupClient(
             $this->lookup->hosts,

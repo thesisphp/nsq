@@ -1,6 +1,14 @@
 version: '3.0'
 
 services:
+  php:
+    build:
+      context: docker/php
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/var/www
+    command: tail -f /dev/null
+
   nsqd0:
     image: nsqio/nsq:v1.3.0
     command: >-
@@ -22,7 +30,6 @@ services:
       --lookupd-tcp-address nsqlookupd0:4160
       --lookupd-tcp-address nsqlookupd1:4160
       --lookupd-tcp-address nsqlookupd2:4160
-      --auth-http-address="nsq-auth:1325"
       --deflate=true
     ports:
       - "127.0.0.1:4151:4150"
